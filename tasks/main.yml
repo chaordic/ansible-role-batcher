@@ -1,0 +1,28 @@
+---
+- name: "Running tasks"
+  shell: "{{ item.command }}"
+  register: "result"
+  async: "{{ batcher_async }}"
+  poll: "{{ batcher_poll }}"
+  with_items: "{{ batcher_tasks }}"
+
+- name: "Checking if all tasks have finished"
+  async_status:
+    jid: "{{ item.ansible_job_id }}"
+  register: "result_jobs"
+  retries: "{{ batcher_retries }}"
+  delay: "{{ batcher_delay }}"
+  until: result_jobs.finished
+  loop: "{{ result.results }}"
+  when: batcher_poll == 0 and batcher_wait == true
+
+- name: "Print results"
+  debug: msg="{{ item.stdout }}"
+  with_items: "{{ result.results }}"
+  when: batcher_poll > 0 and batcher_wait == true
+
+- name: "Print results"
+  debug: msg="{{ item.stdout }}"
+  with_items: "{{ result_jobs.results }}"
+  when: batcher_poll == 0 and batcher_wait == true
+

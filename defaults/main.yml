@@ -1,0 +1,35 @@
+---
+# Maximum time in seconds that each task should run
+# If the task don't finish until this time limit, the playbook is aborted
+batcher_async: 10
+
+# Specify if the tasks should be executed sequentially or in parallel
+# - if > 0 then run each task one by one polling the task every N seconds
+#   until its done in order to run the next task. Aborts the playbook
+#   if the task timeout.
+# - if = 0 just run all the tasks in parallel and continue the playbook
+batcher_poll: 5
+
+# How many times should we poll each task for completion
+# This option is only used if batcher_poll == 0
+# Abort the playbook if all the tasks haven't finished
+batcher_retries: 5
+
+# How long should we wait in between retries
+# This option is only used if batcher_poll == 0
+batcher_delay: 5
+
+# Specify if we should wait for all the tasks to complete before continuing
+# the playbook
+# This option is only used if batcher_poll == 0
+batcher_wait: true
+
+# The tasks to be executed
+batcher_tasks:
+  - name: uname
+    command: |
+      uname -a
+  - name: sleep
+    command: |
+      sleep 5
+      echo $(date) > /tmp/x
